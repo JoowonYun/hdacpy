@@ -11,15 +11,15 @@ def read(file_name: str) -> str:
 
 
 setup(
-    name="cosmospy",
-    version="3.0.2",  # DO NOT EDIT THIS LINE MANUALLY. LET bump2version UTILITY DO IT
-    author="hukkinj1",
-    author_email="hukkinj1@users.noreply.github.com",
-    description="Tools for Cosmos wallet management and offline transaction signing",
-    url="https://github.com/hukkinj1/cosmospy",
-    project_urls={"Changelog": "https://github.com/hukkinj1/cosmospy/blob/master/CHANGELOG.md"},
-    packages=["cosmospy"],
-    package_data={"cosmospy": ["py.typed"]},
+    name="hdacpy",
+    version="0.1.0",  # DO NOT EDIT THIS LINE MANUALLY. LET bump2version UTILITY DO IT
+    author="psy2848048",
+    author_email="psy2848048@users.noreply.github.com",
+    description="Tools for Hdac wallet management and offline transaction signing",
+    url="https://github.com/psy2848048/hdacpy",
+    project_urls={"Changelog": "https://github.com/psy2848048/hdacpy/blob/master/CHANGELOG.md"},
+    packages=["hdacpy"],
+    package_data={"hadcpy": ["py.typed"]},
     zip_safe=False,  # For mypy to be able to find the installed package
     long_description=read("README.md"),
     long_description_content_type="text/markdown",
@@ -29,7 +29,7 @@ setup(
         "typing-extensions>=3.7.4,<4.0.0; python_version<'3.8'",
     ],
     python_requires=">=3.6",
-    keywords="cosmos blockchain atom cryptocurrency",
+    keywords="hdac blockchain cryptocurrency python sdk",
     classifiers=[
         "Typing :: Typed",
         "License :: OSI Approved :: MIT License",

@@ -1,4 +1,5 @@
 import json
+import pytest
 from unittest.mock import Mock
 
 from hdacpy.transaction import Transaction
@@ -49,7 +50,7 @@ def test_sign():
     actual_signature = tx._sign()
     assert actual_signature == expected_signature
 
-
+@pytest.mark.skip(reason="only works if RESTful server runs in local")
 def test_transfer():
     expected_pushable_tx = '{"mode":"sync","tx":{"fee":{"amount":[],"gas":"37000"},"memo":"","msg":[{"type":"executionengine/Execute","value":{"block_hash":"AA==","contract_owner_account":"friday1lgharzgds89lpshr7q8kcmd2esnxkfpwmfgk32","exec_account":"friday1lgharzgds89lpshr7q8kcmd2esnxkfpwmfgk32","gas_price":"2000000","payment_args":"AQAAAAQAAAADgIQe","session_args":"AgAAABgAAAAUAAAAFX2WU5Tkt49ZzKlXxfh9zBFKLkQIAAAAAAAAAAAAAAA="}}],"signatures":[{"account_number":"11335","pub_key":{"type":"tendermint/PubKeySecp256k1","value":"A49sjCd3Eul+ZXyof7qO460UaO73otrmySHyTNSLW+Xn"},"sequence":"0","signature":"spk/FpIIwMvPv1aKKPCxGWgJ0jdfATpAd2Z0Go+onOhPgMXJtNdiyl+MDaqPLevVlGaZPw42BbhHxrt/EtXFLg=="}]}}'  # noqa: E501
 
@@ -81,6 +82,7 @@ def test_transfer():
     print(res.json())
     assert res.status_code == 200
 
+@pytest.mark.skip(reason="only works if RESTful server runs in local")
 def test_bond():
     expected_pushable_tx = '{"mode":"sync","tx":{"fee":{"amount":[],"gas":"37000"},"memo":"","msg":[{"type":"executionengine/Execute","value":{"block_hash":"AA==","contract_owner_account":"friday1lgharzgds89lpshr7q8kcmd2esnxkfpwmfgk32","exec_account":"friday1lgharzgds89lpshr7q8kcmd2esnxkfpwmfgk32","gas_price":"2000000","payment_args":"AQAAAAQAAAADgIQe","session_args":"AgAAABgAAAAUAAAA+i/RiQ2By/DC4/APbG2qzCZrJC4IAAAAAAAAAAAAAAA="}}],"signatures":[{"account_number":"11335","pub_key":{"type":"tendermint/PubKeySecp256k1","value":"A49sjCd3Eul+ZXyof7qO460UaO73otrmySHyTNSLW+Xn"},"sequence":"0","signature":"Ouv7wssXWeqTlgFD2Eu9Baq0Mx0ugFvR0qRlQseK/XA82obFV8TdiqkYhwZGBL4wL3CIE0DzqkYEwaHdSnecMA=="}]}}'  # noqa: E501
 
@@ -111,6 +113,7 @@ def test_bond():
     print(res.json())
     assert res.status_code == 200
 
+@pytest.mark.skip(reason="only works if RESTful server runs in local")
 def test_unbond():
     expected_pushable_tx = '{"mode":"sync","tx":{"fee":{"amount":[],"gas":"37000"},"memo":"","msg":[{"type":"executionengine/Execute","value":{"block_hash":"AA==","contract_owner_account":"friday1lgharzgds89lpshr7q8kcmd2esnxkfpwmfgk32","exec_account":"friday1lgharzgds89lpshr7q8kcmd2esnxkfpwmfgk32","gas_price":"2000000","payment_args":"AQAAAAQAAAADgIQe","session_args":"AgAAABgAAAAUAAAA+i/RiQ2By/DC4/APbG2qzCZrJC4IAAAAAAAAAAAAAAA="}}],"signatures":[{"account_number":"11335","pub_key":{"type":"tendermint/PubKeySecp256k1","value":"A49sjCd3Eul+ZXyof7qO460UaO73otrmySHyTNSLW+Xn"},"sequence":"0","signature":"X1sW95QiiXWBftf2xOlldpGPI9KU8AKJCBs/Hfoeg9obVveqigbSLFdL+1vWnJXsgaKLqWQSfhUetPisiH2eaQ=="}]}}'  # noqa: E501
 
