@@ -28,7 +28,7 @@ class Transaction:
         privkey: str,
         account_num: int,
         sequence: int,
-        gas: int,
+        gas_price: int,
         memo: str = "",
         chain_id: str = "friday-devnet",
         sync_mode: SyncMode = "sync",
@@ -37,7 +37,7 @@ class Transaction:
         self._privkey = privkey
         self._account_num = account_num
         self._sequence = sequence
-        self._gas = gas
+        self._gas_price = gas_price
         self._memo = memo
         self._chain_id = chain_id
         self._sync_mode = sync_mode
@@ -63,9 +63,49 @@ class Transaction:
         params = {
 	        "chain_id": self._chain_id,
 	        "memo": memo,
-	        "gas": str(gas_price),
+	        "gas_price": str(gas_price),
 	        "sender_address": sender_address,
             "recipient_address": recipient_address,
+	        "amount": amount
+        }
+        resp = self._post_json(url, json_param=params)
+        if resp.status_code != 200:
+            raise BadRequestException
+        
+        value = resp.json().get("value")
+        msgs = value.get("msg")
+        if len(msgs) == 0:
+            raise EmptyMsgException
+
+        self._msgs.extend(msgs)
+
+    def bond(self, address: str, amount: int, gas_price: int, memo: str=""):
+        url = "/".join([self._host, "executionlayer/bond"])
+        params = {
+	        "chain_id": self._chain_id,
+	        "memo": memo,
+	        "gas_price": str(gas_price),
+	        "address": address,
+	        "amount": amount
+        }
+        resp = self._post_json(url, json_param=params)
+        if resp.status_code != 200:
+            raise BadRequestException
+        
+        value = resp.json().get("value")
+        msgs = value.get("msg")
+        if len(msgs) == 0:
+            raise EmptyMsgException
+
+        self._msgs.extend(msgs)
+
+    def unbond(self, address: str, amount: int, gas_price: int, memo: str=""):
+        url = "/".join([self._host, "executionlayer/unbond"])
+        params = {
+	        "chain_id": self._chain_id,
+	        "memo": memo,
+	        "gas_price": str(gas_price),
+	        "address": address,
 	        "amount": amount
         }
         resp = self._post_json(url, json_param=params)
@@ -92,7 +132,7 @@ class Transaction:
             "tx": {
                 "msg": self._msgs,
                 "fee": {
-                    "gas": str(self._gas),
+                    "gas": str(self._gas_price),
                     "amount": [],
                 },
                 "memo": self._memo,
@@ -126,7 +166,7 @@ class Transaction:
             "chain_id": self._chain_id,
             "account_number": str(self._account_num),
             "fee": {
-                "gas": str(self._gas),
+                "gas": str(self._gas_price),
                 "amount": [],
             },
             "memo": self._memo,
