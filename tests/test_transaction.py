@@ -1,12 +1,13 @@
+import json
 from unittest.mock import Mock
 
-from cosmospy.transaction import Transaction
+from hdacpy.transaction import Transaction
 
 
 def test_sign():
     private_key = "2afc5a66b30e7521d553ec8e6f7244f906df97477248c30c103d7b3f2c671fef"
     unordered_sign_message = {
-        "chain_id": "tendermint_test",
+        "chain_id": "friday-devtest",
         "account_number": "1",
         "fee": {"gas": "21906", "amount": [{"amount": "0", "denom": ""}]},
         "memo": "",
@@ -17,13 +18,13 @@ def test_sign():
                 "value": {
                     "inputs": [
                         {
-                            "address": "cosmos1qperwt9wrnkg5k9e5gzfgjppzpqhyav5j24d66",
+                            "address": "friday1qperwt9wrnkg5k9e5gzfgjppzpqhyav5j24d66",
                             "coins": [{"amount": "1", "denom": "STAKE"}],
                         }
                     ],
                     "outputs": [
                         {
-                            "address": "cosmos1yeckxz7tapz34kjwnjxvmxzurerquhtrmxmuxt",
+                            "address": "friday1yeckxz7tapz34kjwnjxvmxzurerquhtrmxmuxt",
                             "coins": [{"amount": "1", "denom": "STAKE"}],
                         }
                     ],
@@ -33,37 +34,49 @@ def test_sign():
     }
     dummy_num = 1337
     tx = Transaction(
+        host="http://localhost:1317",
         privkey=private_key,
         account_num=dummy_num,
         sequence=dummy_num,
-        fee=dummy_num,
         gas=dummy_num,
     )
     tx._get_sign_message = Mock(return_value=unordered_sign_message)  # type: ignore
 
     expected_signature = (
-        "YjJhlAf7aCnUtLyBNDp9e6LKuNgV7hJC3rmm0Wro5nBsIPVtWzjuobsp/AhR5Kht+HcRF2zBq4AfoNQMIbY6fw=="
+        "5YvLtcxp3BzxCTGM6TlKZ//nNBakmWyUrvydJgOCeQAc5DnFEnm5/Q48zEtEHy0dS3iNB7KH/ykqcYnWGHWbNQ=="
     )
 
     actual_signature = tx._sign()
     assert actual_signature == expected_signature
 
 
-def test_get_pushable_tx():
-    expected_pushable_tx = '{"tx":{"msg":[{"type":"cosmos-sdk/MsgSend","value":{"from_address":"cosmos1lgharzgds89lpshr7q8kcmd2esnxkfpwvuz5tr","to_address":"cosmos103l758ps7403sd9c0y8j6hrfw4xyl70j4mmwkf","amount":[{"denom":"uatom","amount":"387000"}]}}],"fee":{"gas":"37000","amount":[{"denom":"uatom","amount":"1000"}]},"memo":"","signatures":[{"signature":"chbQMmrg18ZQSt3q3HzW8S8pMyGs/TP/WIbbCyKFd5IiReUY/xJB2yRDEtF92yYBjxEU02z9JNE7VCQmmxWdQw==","pub_key":{"type":"tendermint/PubKeySecp256k1","value":"A49sjCd3Eul+ZXyof7qO460UaO73otrmySHyTNSLW+Xn"},"account_number":"11335","sequence":"0"}]},"mode":"sync"}'  # noqa: E501
+def test_transfer():
+    expected_pushable_tx = '{"mode":"sync","tx":{"fee":{"amount":[],"gas":"37000"},"memo":"","msg":[{"type":"executionengine/Execute","value":{"block_hash":"AA==","contract_owner_account":"friday1lgharzgds89lpshr7q8kcmd2esnxkfpwmfgk32","exec_account":"friday1lgharzgds89lpshr7q8kcmd2esnxkfpwmfgk32","gas_price":"0","payment_args":"AQAAAAEAAAAA","session_args":"AgAAABgAAAAUAAAAFX2WU5Tkt49ZzKlXxfh9zBFKLkQIAAAAAAAAAAAAAAA="}}],"signatures":[{"account_number":"11335","pub_key":{"type":"tendermint/PubKeySecp256k1","value":"A49sjCd3Eul+ZXyof7qO460UaO73otrmySHyTNSLW+Xn"},"sequence":"0","signature":"N43alK/csj2d6GtFDKNJQbDFvp+ONsLqgNgEto9JG1dfX35z080jmHRlVM8frE2A3GUTyKY7GYTENckJBuqacg=="}]}}'  # noqa: E501
 
     _tx_total_cost = 388000
     fee = 1000
     amount = _tx_total_cost - fee
 
     tx = Transaction(
+        host="http://localhost:1317",
         privkey="26d167d549a4b2b66f766b0d3f2bdbe1cd92708818c338ff453abde316a2bd59",
         account_num=11335,
         sequence=0,
-        fee=fee,
         gas=37000,
-        chain_id="cosmoshub-2",
+        chain_id="friday-devtest",
     )
-    tx.add_transfer(recipient="cosmos103l758ps7403sd9c0y8j6hrfw4xyl70j4mmwkf", amount=amount)
-    pushable_tx = tx.get_pushable_tx()
-    assert pushable_tx == expected_pushable_tx
+    tx.transfer(
+        sender_address="friday1lgharzgds89lpshr7q8kcmd2esnxkfpwmfgk32",
+        recipient_address="friday1z47ev5u5ujmc7kwv49tut7raesg55tjyk2wvhd",
+        amount=amount, gas_price=2000000
+    )
+
+    res_without_bin = tx._get_pushable_tx()
+    res_without_bin['tx']['msg'][0]['value'].pop('session_code')
+    res_without_bin['tx']['msg'][0]['value'].pop('payment_code')
+
+    assert expected_pushable_tx == json.dumps(res_without_bin, separators=(",", ":"), sort_keys=True)
+
+    res = tx.send_tx()
+    print(res.json())
+    assert res.status_code == 200

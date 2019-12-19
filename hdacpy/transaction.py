@@ -7,6 +7,7 @@ import ecdsa
 
 from hdacpy.typing import SyncMode
 from hdacpy.wallet import privkey_to_address, privkey_to_pubkey
+from hdacpy.exceptions import BadRequestException, EmptyMsgException
 
 import requests
 
@@ -27,9 +28,7 @@ class Transaction:
         privkey: str,
         account_num: int,
         sequence: int,
-        #fee: int,
         gas: int,
-        #fee_denom: str = "uatom",
         memo: str = "",
         chain_id: str = "friday-devnet",
         sync_mode: SyncMode = "sync",
@@ -38,31 +37,55 @@ class Transaction:
         self._privkey = privkey
         self._account_num = account_num
         self._sequence = sequence
-        #self._fee = fee
-        #self._fee_denom = fee_denom
         self._gas = gas
         self._memo = memo
         self._chain_id = chain_id
         self._sync_mode = sync_mode
         self._msgs: List[dict] = []
 
-    def _get(self, url:str, args:dict) -> requests.Response:
-        resp = requests.get(url)
+    def _get(self, url:str, params:dict) -> requests.Response:
+        resp = requests.get(url, params=params)
         return resp
 
-    def _post(self, url:str, params:dict) -> requests.Response:
-        resp = requests.post(url, json=params)
+    def _post_json(self, url:str, json_param:dict) -> requests.Response:
+        resp = requests.post(url, json=json_param)
         return resp
 
-    def transfer(self, recipient: str, amount: int, denom: str = "uatom") -> None:
+    def balance(self, address: str):
+        url = "/".join([self._host, "executionlayer/balance"])
+        resp = self._get(url, params={"address": address})
+        return resp
+
+    def transfer(self, sender_address: str, recipient_address:str, 
+                 amount: int, gas_price: int,
+                 memo: str = "") -> None:
         url = "/".join([self._host, "executionlayer/transfer"])
-        resp = self._post(url, params=dict())
-        self._msgs.append(resp)
+        params = {
+	        "chain_id": self._chain_id,
+	        "memo": memo,
+	        "gas": str(gas_price),
+	        "sender_address": sender_address,
+            "recipient_address": recipient_address,
+	        "amount": amount
+        }
+        resp = self._post_json(url, json_param=params)
+        if resp.status_code != 200:
+            raise BadRequestException
+        
+        value = resp.json().get("value")
+        msgs = value.get("msg")
+        if len(msgs) == 0:
+            raise EmptyMsgException
 
-    def send_tx(self, url:str, tx):
-        return
+        self._msgs.extend(msgs)
 
-    def get_pushable_tx(self) -> str:
+    def send_tx(self):
+        tx = self._get_pushable_tx()
+        url = "/".join([self._host, "txs"])
+        resp = self._post_json(url, json_param=tx)
+        return resp
+
+    def _get_pushable_tx(self) -> str:
         pubkey = privkey_to_pubkey(self._privkey)
         base64_pubkey = base64.b64encode(bytes.fromhex(pubkey)).decode("utf-8")
         pushable_tx = {
@@ -84,7 +107,7 @@ class Transaction:
             },
             "mode": self._sync_mode,
         }
-        return json.dumps(pushable_tx, separators=(",", ":"))
+        return pushable_tx
 
     def _sign(self) -> str:
         message_str = json.dumps(self._get_sign_message(), separators=(",", ":"), sort_keys=True)
