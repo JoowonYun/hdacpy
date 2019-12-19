@@ -2,7 +2,7 @@
 [![codecov](https://codecov.io/gh/psy2848048/hdacpy/branch/master/graph/badge.svg)](https://codecov.io/gh/psy2848048/hdacpy)
 # hdacpy
 
-Tools for Hdac wallet management and offline transaction signing
+Tools for Hdac wallet management and offline transaction signing  
 Forked from hukkinj1/cosmospy
 
 <!--- Don't edit the version line below manually. Let bump2version do it for you. -->
@@ -20,7 +20,7 @@ pip install hdacpy
 
 ### Prerequisite
 
-Run node & rest-server in following step: (https://docs.hdac.io/installation/build)
+Run node & rest-server in following step: (https://docs.hdac.io/installation/build)  
 This library runs on RESTful API
 
 ### Generating a wallet
