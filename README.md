@@ -2,7 +2,12 @@
 [![codecov.io](https://codecov.io/gh/hukkinj1/cosmospy/branch/master/graph/badge.svg)](https://codecov.io/gh/hukkinj1/cosmospy)
 [![PyPI version](https://badge.fury.io/py/cosmospy.svg)](https://badge.fury.io/py/cosmospy)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-# cosmospy
+# hdacpy
+
+The repository was forked from cosmospy and PIP, travis, codecov and something related are not updated yet.
+Only tiny workable set are updated.
+**DO NOT FOLLOW the PIP installation instruction below.. The info will be updated after PIP registration.**
+If you want to import, **please use it as a cloned source, not package** in current stage.
 
 <!--- Don't edit the version line below manually. Let bump2version do it for you. -->
 > Version 3.0.2

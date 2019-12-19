@@ -5,8 +5,10 @@ from typing import Any, Dict, List
 
 import ecdsa
 
-from cosmospy.typing import SyncMode
-from cosmospy.wallet import privkey_to_address, privkey_to_pubkey
+from hdacpy.typing import SyncMode
+from hdacpy.wallet import privkey_to_address, privkey_to_pubkey
+
+import requests
 
 
 class Transaction:
@@ -21,37 +23,44 @@ class Transaction:
     def __init__(
         self,
         *,
+        host: str,
         privkey: str,
         account_num: int,
         sequence: int,
-        fee: int,
+        #fee: int,
         gas: int,
-        fee_denom: str = "uatom",
+        #fee_denom: str = "uatom",
         memo: str = "",
-        chain_id: str = "cosmoshub-3",
+        chain_id: str = "friday-devnet",
         sync_mode: SyncMode = "sync",
     ) -> None:
+        self._host = host
         self._privkey = privkey
         self._account_num = account_num
         self._sequence = sequence
-        self._fee = fee
-        self._fee_denom = fee_denom
+        #self._fee = fee
+        #self._fee_denom = fee_denom
         self._gas = gas
         self._memo = memo
         self._chain_id = chain_id
         self._sync_mode = sync_mode
         self._msgs: List[dict] = []
 
-    def add_transfer(self, recipient: str, amount: int, denom: str = "uatom") -> None:
-        transfer = {
-            "type": "cosmos-sdk/MsgSend",
-            "value": {
-                "from_address": privkey_to_address(self._privkey),
-                "to_address": recipient,
-                "amount": [{"denom": denom, "amount": str(amount)}],
-            },
-        }
-        self._msgs.append(transfer)
+    def _get(self, url:str, args:dict) -> requests.Response:
+        resp = requests.get(url)
+        return resp
+
+    def _post(self, url:str, params:dict) -> requests.Response:
+        resp = requests.post(url, json=params)
+        return resp
+
+    def transfer(self, recipient: str, amount: int, denom: str = "uatom") -> None:
+        url = "/".join([self._host, "executionlayer/transfer"])
+        resp = self._post(url, params=dict())
+        self._msgs.append(resp)
+
+    def send_tx(self, url:str, tx):
+        return
 
     def get_pushable_tx(self) -> str:
         pubkey = privkey_to_pubkey(self._privkey)
@@ -61,7 +70,7 @@ class Transaction:
                 "msg": self._msgs,
                 "fee": {
                     "gas": str(self._gas),
-                    "amount": [{"denom": self._fee_denom, "amount": str(self._fee)}],
+                    "amount": [],
                 },
                 "memo": self._memo,
                 "signatures": [
@@ -95,7 +104,7 @@ class Transaction:
             "account_number": str(self._account_num),
             "fee": {
                 "gas": str(self._gas),
-                "amount": [{"amount": str(self._fee), "denom": self._fee_denom}],
+                "amount": [],
             },
             "memo": self._memo,
             "sequence": str(self._sequence),
