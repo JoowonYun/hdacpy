@@ -3,7 +3,7 @@ import hashlib
 import bech32
 import ecdsa
 
-from cosmospy.typing import Wallet
+from hdacpy.typing import Wallet
 
 
 def generate_wallet() -> Wallet:
@@ -23,7 +23,7 @@ def pubkey_to_address(pubkey: str) -> str:
     pubkey_bytes = bytes.fromhex(pubkey)
     s = hashlib.new("sha256", pubkey_bytes).digest()
     r = hashlib.new("ripemd160", s).digest()
-    return bech32.bech32_encode("cosmos", bech32.convertbits(r, 8, 5))
+    return bech32.bech32_encode("friday", bech32.convertbits(r, 8, 5))
 
 
 def privkey_to_address(privkey: str) -> str:
