@@ -57,13 +57,14 @@ class Transaction:
         return resp
 
     def transfer(self, sender_address: str, recipient_address:str, 
-                 amount: int, gas_price: int,
+                 amount: int, gas_price: int, fee: int,
                  memo: str = "") -> None:
         url = "/".join([self._host, "executionlayer/transfer"])
         params = {
 	        "chain_id": self._chain_id,
 	        "memo": memo,
 	        "gas_price": str(gas_price),
+            "fee": str(fee),
 	        "sender_address": sender_address,
             "recipient_address": recipient_address,
 	        "amount": amount
@@ -79,12 +80,13 @@ class Transaction:
 
         self._msgs.extend(msgs)
 
-    def bond(self, address: str, amount: int, gas_price: int, memo: str=""):
+    def bond(self, address: str, amount: int, gas_price: int, fee:int, memo: str=""):
         url = "/".join([self._host, "executionlayer/bond"])
         params = {
 	        "chain_id": self._chain_id,
 	        "memo": memo,
 	        "gas_price": str(gas_price),
+            "fee": str(fee),
 	        "address": address,
 	        "amount": amount
         }
@@ -99,12 +101,13 @@ class Transaction:
 
         self._msgs.extend(msgs)
 
-    def unbond(self, address: str, amount: int, gas_price: int, memo: str=""):
+    def unbond(self, address: str, amount: int, gas_price: int, fee: int, memo: str=""):
         url = "/".join([self._host, "executionlayer/unbond"])
         params = {
 	        "chain_id": self._chain_id,
 	        "memo": memo,
 	        "gas_price": str(gas_price),
+            "fee": str(fee),
 	        "address": address,
 	        "amount": amount
         }

@@ -69,7 +69,7 @@ def test_transfer():
     tx.transfer(
         sender_address="friday1lgharzgds89lpshr7q8kcmd2esnxkfpwmfgk32",
         recipient_address="friday1z47ev5u5ujmc7kwv49tut7raesg55tjyk2wvhd",
-        amount=amount, gas_price=2000000
+        amount=amount, gas_price=2000000, fee=10000
     )
 
     res_without_bin = tx._get_pushable_tx()
@@ -100,7 +100,7 @@ def test_bond():
     )
     tx.bond(
         address="friday1lgharzgds89lpshr7q8kcmd2esnxkfpwmfgk32",
-        amount=amount, gas_price=2000000
+        amount=amount, gas_price=2000000, fee=10000
     )
 
     res_without_bin = tx._get_pushable_tx()
@@ -131,7 +131,7 @@ def test_unbond():
     )
     tx.unbond(
         address="friday1lgharzgds89lpshr7q8kcmd2esnxkfpwmfgk32",
-        amount=amount, gas_price=2000000
+        amount=amount, gas_price=2000000, fee=10000
     )
 
     res_without_bin = tx._get_pushable_tx()
