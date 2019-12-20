@@ -3,6 +3,10 @@ Changelog
 
 This log documents all public API breaking backwards incompatible changes.
 
+0.1.1
+-----
+- `fee` Parameter added to each tx
+
 0.1.0
 -----
 - Forked project from hukkinj1/cosmospy

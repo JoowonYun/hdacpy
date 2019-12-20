@@ -11,6 +11,7 @@ flake8-builtins
 mypy
 docformatter
 codecov
+requests
 
 # Requirements of the package
 ecdsa
