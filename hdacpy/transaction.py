@@ -26,17 +26,15 @@ class Transaction:
         *,
         host: str,
         privkey: str,
-        account_num: int,
-        sequence: int,
-        gas_price: int,
+        gas_price: int=0,
         memo: str = "",
         chain_id: str = "friday-devnet",
         sync_mode: SyncMode = "sync",
     ) -> None:
         self._host = host
         self._privkey = privkey
-        self._account_num = account_num
-        self._sequence = sequence
+        self._account_num = 0
+        self._sequence = 0
         self._gas_price = gas_price
         self._memo = memo
         self._chain_id = chain_id
@@ -51,6 +49,16 @@ class Transaction:
         resp = requests.post(url, json=json_param)
         return resp
 
+    def _get_account_info(self, address):
+        url = "/".join([self._host, "auth/accounts", address])
+        res = self._get(url, None)
+        if res.status_code != 200:
+            raise BadRequestException
+
+        resp = res.json()
+        self._account_num = int(resp["result"]["value"]["account_number"])
+        self._sequence = int(resp["result"]["value"]["sequence"])
+
     def balance(self, address: str):
         url = "/".join([self._host, "executionlayer/balance"])
         resp = self._get(url, params={"address": address})
@@ -61,6 +69,7 @@ class Transaction:
                  memo: str = "") -> None:
         self._gas_price = gas_price
         self._memo = memo
+        self._get_account_info(sender_address)
 
         url = "/".join([self._host, "executionlayer/transfer"])
         params = {
@@ -70,7 +79,7 @@ class Transaction:
             "fee": str(fee),
 	        "sender_address": sender_address,
             "recipient_address": recipient_address,
-	        "amount": amount
+	        "amount": str(amount)
         }
         resp = self._post_json(url, json_param=params)
         if resp.status_code != 200:
@@ -86,6 +95,7 @@ class Transaction:
     def bond(self, address: str, amount: int, gas_price: int, fee:int, memo: str=""):
         self._gas_price = gas_price
         self._memo = memo
+        self._get_account_info(address)
 
         url = "/".join([self._host, "executionlayer/bond"])
         params = {
@@ -94,7 +104,7 @@ class Transaction:
 	        "gas_price": str(gas_price),
             "fee": str(fee),
 	        "address": address,
-	        "amount": amount
+	        "amount": str(amount)
         }
         resp = self._post_json(url, json_param=params)
         if resp.status_code != 200:
@@ -110,6 +120,7 @@ class Transaction:
     def unbond(self, address: str, amount: int, gas_price: int, fee: int, memo: str=""):
         self._gas_price = gas_price
         self._memo = memo
+        self._get_account_info(address)
 
         url = "/".join([self._host, "executionlayer/unbond"])
         params = {
@@ -118,7 +129,7 @@ class Transaction:
 	        "gas_price": str(gas_price),
             "fee": str(fee),
 	        "address": address,
-	        "amount": amount
+	        "amount": str(amount)
         }
         resp = self._post_json(url, json_param=params)
         if resp.status_code != 200:
