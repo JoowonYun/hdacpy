@@ -37,9 +37,7 @@ def test_sign():
     tx = Transaction(
         host="http://localhost:1317",
         privkey=private_key,
-        account_num=dummy_num,
-        sequence=dummy_num,
-        gas_price=dummy_num,
+        chain_id="friday-devnet",
     )
     tx._get_sign_message = Mock(return_value=unordered_sign_message)  # type: ignore
 
@@ -52,8 +50,6 @@ def test_sign():
 
 @pytest.mark.skip(reason="only works if RESTful server runs in local")
 def test_transfer():
-    expected_pushable_tx = '{"mode":"sync","tx":{"fee":{"amount":[],"gas":"37000"},"memo":"","msg":[{"type":"executionengine/Execute","value":{"block_hash":"AA==","contract_owner_account":"friday1lgharzgds89lpshr7q8kcmd2esnxkfpwmfgk32","exec_account":"friday1lgharzgds89lpshr7q8kcmd2esnxkfpwmfgk32","gas_price":"2000000","payment_args":"AQAAAAQAAAADgIQe","session_args":"AgAAABgAAAAUAAAAFX2WU5Tkt49ZzKlXxfh9zBFKLkQIAAAAAAAAAAAAAAA="}}],"signatures":[{"account_number":"11335","pub_key":{"type":"tendermint/PubKeySecp256k1","value":"A49sjCd3Eul+ZXyof7qO460UaO73otrmySHyTNSLW+Xn"},"sequence":"0","signature":"spk/FpIIwMvPv1aKKPCxGWgJ0jdfATpAd2Z0Go+onOhPgMXJtNdiyl+MDaqPLevVlGaZPw42BbhHxrt/EtXFLg=="}]}}'  # noqa: E501
-
     _tx_total_cost = 388000
     fee = 1000
     amount = _tx_total_cost - fee
@@ -61,31 +57,23 @@ def test_transfer():
     tx = Transaction(
         host="http://localhost:1317",
         privkey="26d167d549a4b2b66f766b0d3f2bdbe1cd92708818c338ff453abde316a2bd59",
-        account_num=11335,
-        sequence=0,
-        gas_price=37000,
-        chain_id="friday-devtest",
+        chain_id="friday-devnet",
     )
     tx.transfer(
         sender_address="friday1lgharzgds89lpshr7q8kcmd2esnxkfpwmfgk32",
         recipient_address="friday1z47ev5u5ujmc7kwv49tut7raesg55tjyk2wvhd",
-        amount=amount, gas_price=2000000, fee=10000
+        amount=str(amount)+"dummy", gas_price=18000000, fee=10000
     )
 
-    res_without_bin = tx._get_pushable_tx()
-    res_without_bin['tx']['msg'][0]['value'].pop('session_code')
-    res_without_bin['tx']['msg'][0]['value'].pop('payment_code')
-
-    assert expected_pushable_tx == json.dumps(res_without_bin, separators=(",", ":"), sort_keys=True)
-
     res = tx.send_tx()
-    print(res.json())
+    resp = res.json()
+    resp['tx']['msg'][1]['value'].pop('session_code')
+    resp['tx']['msg'][1]['value'].pop('payment_code')
+
     assert res.status_code == 200
 
 @pytest.mark.skip(reason="only works if RESTful server runs in local")
 def test_bond():
-    expected_pushable_tx = '{"mode":"sync","tx":{"fee":{"amount":[],"gas":"37000"},"memo":"","msg":[{"type":"executionengine/Execute","value":{"block_hash":"AA==","contract_owner_account":"friday1lgharzgds89lpshr7q8kcmd2esnxkfpwmfgk32","exec_account":"friday1lgharzgds89lpshr7q8kcmd2esnxkfpwmfgk32","gas_price":"2000000","payment_args":"AQAAAAQAAAADgIQe","session_args":"AgAAABgAAAAUAAAA+i/RiQ2By/DC4/APbG2qzCZrJC4IAAAAAAAAAAAAAAA="}}],"signatures":[{"account_number":"11335","pub_key":{"type":"tendermint/PubKeySecp256k1","value":"A49sjCd3Eul+ZXyof7qO460UaO73otrmySHyTNSLW+Xn"},"sequence":"0","signature":"Ouv7wssXWeqTlgFD2Eu9Baq0Mx0ugFvR0qRlQseK/XA82obFV8TdiqkYhwZGBL4wL3CIE0DzqkYEwaHdSnecMA=="}]}}'  # noqa: E501
-
     _tx_total_cost = 388000
     fee = 1000
     amount = _tx_total_cost - fee
@@ -93,10 +81,7 @@ def test_bond():
     tx = Transaction(
         host="http://localhost:1317",
         privkey="26d167d549a4b2b66f766b0d3f2bdbe1cd92708818c338ff453abde316a2bd59",
-        account_num=11335,
-        sequence=0,
-        gas_price=37000,
-        chain_id="friday-devtest",
+        chain_id="friday-devnet",
     )
     tx.bond(
         address="friday1lgharzgds89lpshr7q8kcmd2esnxkfpwmfgk32",
@@ -107,16 +92,12 @@ def test_bond():
     res_without_bin['tx']['msg'][0]['value'].pop('session_code')
     res_without_bin['tx']['msg'][0]['value'].pop('payment_code')
 
-    assert expected_pushable_tx == json.dumps(res_without_bin, separators=(",", ":"), sort_keys=True)
-
     res = tx.send_tx()
     print(res.json())
     assert res.status_code == 200
 
 @pytest.mark.skip(reason="only works if RESTful server runs in local")
 def test_unbond():
-    expected_pushable_tx = '{"mode":"sync","tx":{"fee":{"amount":[],"gas":"37000"},"memo":"","msg":[{"type":"executionengine/Execute","value":{"block_hash":"AA==","contract_owner_account":"friday1lgharzgds89lpshr7q8kcmd2esnxkfpwmfgk32","exec_account":"friday1lgharzgds89lpshr7q8kcmd2esnxkfpwmfgk32","gas_price":"2000000","payment_args":"AQAAAAQAAAADgIQe","session_args":"AgAAABgAAAAUAAAA+i/RiQ2By/DC4/APbG2qzCZrJC4IAAAAAAAAAAAAAAA="}}],"signatures":[{"account_number":"11335","pub_key":{"type":"tendermint/PubKeySecp256k1","value":"A49sjCd3Eul+ZXyof7qO460UaO73otrmySHyTNSLW+Xn"},"sequence":"0","signature":"X1sW95QiiXWBftf2xOlldpGPI9KU8AKJCBs/Hfoeg9obVveqigbSLFdL+1vWnJXsgaKLqWQSfhUetPisiH2eaQ=="}]}}'  # noqa: E501
-
     _tx_total_cost = 388000
     fee = 1000
     amount = _tx_total_cost - fee
@@ -124,9 +105,6 @@ def test_unbond():
     tx = Transaction(
         host="http://localhost:1317",
         privkey="26d167d549a4b2b66f766b0d3f2bdbe1cd92708818c338ff453abde316a2bd59",
-        account_num=11335,
-        sequence=0,
-        gas_price=37000,
         chain_id="friday-devtest",
     )
     tx.unbond(
@@ -137,8 +115,6 @@ def test_unbond():
     res_without_bin = tx._get_pushable_tx()
     res_without_bin['tx']['msg'][0]['value'].pop('session_code')
     res_without_bin['tx']['msg'][0]['value'].pop('payment_code')
-
-    assert expected_pushable_tx == json.dumps(res_without_bin, separators=(",", ":"), sort_keys=True)
 
     res = tx.send_tx()
     print(res.json())
