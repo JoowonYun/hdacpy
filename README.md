@@ -46,6 +46,7 @@ tx = Transaction(
         chain_id="friday-devtest",
     )
 tx.transfer(
+        token_owner_address="friday1lgharzgds89lpshr7q8kcmd2esnxkfpwmfgk32",
         sender_address="friday1lgharzgds89lpshr7q8kcmd2esnxkfpwmfgk32",
         recipient_address="friday1z47ev5u5ujmc7kwv49tut7raesg55tjyk2wvhd",
         amount=amount, gas_price=2000000, fee=10000

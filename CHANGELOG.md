@@ -3,6 +3,10 @@ Changelog
 
 This log documents all public API breaking backwards incompatible changes.
 
+0.2.0
+-----
+- Fix parameters of transfer
+
 0.1.3
 -----
 - Get auth info
