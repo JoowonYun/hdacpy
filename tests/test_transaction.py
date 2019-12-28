@@ -50,8 +50,8 @@ def test_sign():
 
 @pytest.mark.skip(reason="only works if RESTful server runs in local")
 def test_transfer():
-    _tx_total_cost = 388000
-    fee = 1000
+    _tx_total_cost = 200000000
+    fee = 100000000
     amount = _tx_total_cost - fee
 
     tx = Transaction(
@@ -60,15 +60,16 @@ def test_transfer():
         chain_id="friday-devnet",
     )
     tx.transfer(
+        token_owner_address="friday15evpva2u57vv6l5czehyk69s0wnq9hrkqulwfz",
         sender_address="friday1lgharzgds89lpshr7q8kcmd2esnxkfpwmfgk32",
         recipient_address="friday1z47ev5u5ujmc7kwv49tut7raesg55tjyk2wvhd",
-        amount=str(amount)+"dummy", gas_price=18000000, fee=10000
+        amount=amount, gas_price=20000000, fee=fee
     )
 
     res = tx.send_tx()
     resp = res.json()
-    resp['tx']['msg'][1]['value'].pop('session_code')
-    resp['tx']['msg'][1]['value'].pop('payment_code')
+    resp['tx']['msg'][0]['value'].pop('session_code')
+    resp['tx']['msg'][0]['value'].pop('payment_code')
 
     assert res.status_code == 200
 
@@ -93,7 +94,6 @@ def test_bond():
     res_without_bin['tx']['msg'][0]['value'].pop('payment_code')
 
     res = tx.send_tx()
-    print(res.json())
     assert res.status_code == 200
 
 @pytest.mark.skip(reason="only works if RESTful server runs in local")
@@ -117,5 +117,4 @@ def test_unbond():
     res_without_bin['tx']['msg'][0]['value'].pop('payment_code')
 
     res = tx.send_tx()
-    print(res.json())
     assert res.status_code == 200
