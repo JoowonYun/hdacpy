@@ -3,6 +3,10 @@ Changelog
 
 This log documents all public API breaking backwards incompatible changes.
 
+0.3.0
+-----
+- Getting Mnemonic words is available in wallet generation
+
 0.2.0
 -----
 - Fix parameters of transfer
