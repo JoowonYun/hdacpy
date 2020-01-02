@@ -2,16 +2,17 @@ import hashlib
 
 import bech32
 import ecdsa
-
+from mnemonic import Mnemonic
 from hdacpy.typing import Wallet
-
+import hdacpy.bip39_bip44_process as bip_to_mnemonic
 
 def generate_wallet() -> Wallet:
-    privkey = ecdsa.SigningKey.generate(curve=ecdsa.SECP256k1).to_string().hex()
-    pubkey = privkey_to_pubkey(privkey)
-    address = pubkey_to_address(pubkey)
-    return {"private_key": privkey, "public_key": pubkey, "address": address}
+    m = Mnemonic("english")
+    mnemonic = m.generate(strength=256)
 
+    privkey, pubkey = bip_to_mnemonic.mnemonic_to_key(mnemonic)
+    address = pubkey_to_address(pubkey)
+    return {"private_key": privkey, "public_key": pubkey, "address": address, "mnemonic": mnemonic}
 
 def privkey_to_pubkey(privkey: str) -> str:
     privkey_obj = ecdsa.SigningKey.from_string(bytes.fromhex(privkey), curve=ecdsa.SECP256k1)
@@ -28,4 +29,19 @@ def pubkey_to_address(pubkey: str) -> str:
 
 def privkey_to_address(privkey: str) -> str:
     pubkey = privkey_to_pubkey(privkey)
+    return pubkey_to_address(pubkey)
+
+
+def mnemonic_to_privkey(mnemonic):
+    privkey, _ = bip_to_mnemonic.mnemonic_to_key(mnemonic)
+    return privkey
+
+
+def mnemonic_to_pubkey(mnemonic):
+    _, pubkey = bip_to_mnemonic.mnemonic_to_key(mnemonic)
+    return pubkey
+
+
+def mnemonic_to_address(mnemonic):
+    _, pubkey = bip_to_mnemonic.mnemonic_to_key(mnemonic)
     return pubkey_to_address(pubkey)

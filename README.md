@@ -31,10 +31,10 @@ wallet = generate_wallet()
 The value assigned to `wallet` will be a dictionary just like:
 ```python
 {
-    'private_key': '6dcd05d7ac71e09d3cf7da666709ebd59362486ff9e99db0e8bc663570515afa',
-    'public_key': '03e8005aad74da5a053602f86e3151d4f3214937863a11299c960c28d3609c4775',
-    'address': 'friday1r5v5srda7xfth3hn2s26txvrcrntldjuv7dedk'
-}
+    'private_key': '367360433d797cabd35361abdb3f6d0b94d27d7222d3af22a49028b7f4beb85d',
+    'public_key': '0320a9b30c5fbbba3ffc34a1732c69365bc2a7de143f970318f8f1a2a38018dc6a',
+    'address': 'friday1jg8n39n2m93aavjnxl7snnvt4q6n50g9alxgkl',
+    'mnemonic': 'often day image remove film awful art satisfy stable honey provide cactus example flock vacuum adult cool install erase able pencil cancel retreat win'}
  ```
 
 ### Signing transactions

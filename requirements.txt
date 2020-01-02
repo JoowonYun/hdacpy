@@ -17,3 +17,5 @@ requests
 ecdsa
 bech32
 typing-extensions
+mnemonic
+bip32utils
