@@ -3,6 +3,10 @@ Changelog
 
 This log documents all public API breaking backwards incompatible changes.
 
+0.3.1
+-----
+- Fixed parameter of transfer `token_owner_address` -> `token_contract_address`
+
 0.3.0
 -----
 - Getting Mnemonic words is available in wallet generation

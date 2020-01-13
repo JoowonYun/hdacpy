@@ -113,7 +113,7 @@ class Transaction:
         resp = self._get(url, params={"address": address, "block": blockHash})
         return resp
 
-    def transfer(self, token_owner_address:str, sender_address: str, recipient_address:str, 
+    def transfer(self, token_contract_address:str, sender_address: str, recipient_address:str, 
                  amount: int, gas_price: int, fee: int,
                  memo: str = "") -> None:
         self._gas_price = gas_price
@@ -126,7 +126,7 @@ class Transaction:
 	        "memo": memo,
 	        "gas_price": str(gas_price),
             "fee": str(fee),
-            "token_owner_address": token_owner_address,
+            "token_contract_address": token_contract_address,
 	        "sender_address": sender_address,
             "recipient_address": recipient_address,
 	        "amount": str(amount)
