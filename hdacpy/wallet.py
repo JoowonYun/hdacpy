@@ -6,6 +6,9 @@ from mnemonic import Mnemonic
 from hdacpy.typing import Wallet
 import hdacpy.bip39_bip44_process as bip_to_mnemonic
 
+PREFIX = "friday"
+KEYWORD_PUB = "pub"
+
 def generate_wallet() -> Wallet:
     m = Mnemonic("english")
     mnemonic = m.generate(strength=256)
@@ -24,7 +27,7 @@ def pubkey_to_address(pubkey: str) -> str:
     pubkey_bytes = bytes.fromhex(pubkey)
     s = hashlib.new("sha256", pubkey_bytes).digest()
     r = hashlib.new("ripemd160", s).digest()
-    return bech32.bech32_encode("friday", bech32.convertbits(r, 8, 5))
+    return bech32.bech32_encode(PREFIX, bech32.convertbits(r, 8, 5))
 
 
 def privkey_to_address(privkey: str) -> str:
