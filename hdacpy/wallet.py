@@ -3,11 +3,12 @@ import hashlib
 import bech32
 import ecdsa
 from mnemonic import Mnemonic
-from hdacpy.typing import Wallet
+from hdacpy.type import Wallet
 import hdacpy.bip39_bip44_process as bip_to_mnemonic
 
 PREFIX = "friday"
 KEYWORD_PUB = "pub"
+
 
 def generate_wallet() -> Wallet:
     m = Mnemonic("english")
@@ -16,6 +17,7 @@ def generate_wallet() -> Wallet:
     privkey, pubkey = bip_to_mnemonic.mnemonic_to_key(mnemonic)
     address = pubkey_to_address(pubkey)
     return {"private_key": privkey, "public_key": pubkey, "address": address, "mnemonic": mnemonic}
+
 
 def privkey_to_pubkey(privkey: str) -> str:
     privkey_obj = ecdsa.SigningKey.from_string(bytes.fromhex(privkey), curve=ecdsa.SECP256k1)

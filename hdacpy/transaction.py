@@ -5,28 +5,22 @@ from typing import Any, Dict, List
 
 import ecdsa
 
-from hdacpy.typing import SyncMode
-from hdacpy.wallet import privkey_to_address, privkey_to_pubkey
+from hdacpy.type import SyncMode
+from hdacpy.wallet import privkey_to_pubkey
 from hdacpy.exceptions import BadRequestException, EmptyMsgException
 
 import requests
 
 
 class Transaction:
-    """A Cosmos transaction.
-
-    After initialization, one or more atom transfers can be added by
-    calling the `add_transfer()` method. Finally, call
-    `get_pushable_tx()` to get a signed transaction that can be pushed
-    to the `POST /txs` endpoint of the Cosmos REST API.
-    """
+    """A Hdac transaction"""
 
     def __init__(
         self,
         *,
         host: str,
         privkey: str,
-        gas_price: int=0,
+        gas_price: int = 0,
         memo: str = "",
         chain_id: str = "friday-devnet",
         sync_mode: SyncMode = "sync",
@@ -41,11 +35,11 @@ class Transaction:
         self._sync_mode = sync_mode
         self._msgs: List[dict] = []
 
-    def _get(self, url:str, params:dict) -> requests.Response:
+    def _get(self, url: str, params: dict) -> requests.Response:
         resp = requests.get(url, params=params)
         return resp
 
-    def _post_json(self, url:str, json_param:dict) -> requests.Response:
+    def _post_json(self, url: str, json_param: dict) -> requests.Response:
         resp = requests.post(url, json=json_param)
         return resp
 
@@ -58,7 +52,7 @@ class Transaction:
         resp = res.json()
         self._account_num = int(resp["result"]["value"]["account_number"])
         self._sequence = int(resp["result"]["value"]["sequence"])
-    
+
     def _get_pushable_tx(self) -> str:
         pubkey = privkey_to_pubkey(self._privkey)
         base64_pubkey = base64.b64encode(bytes.fromhex(pubkey)).decode("utf-8")
@@ -108,12 +102,12 @@ class Transaction:
             "msgs": self._msgs,
         }
 
-    def balance(self, address: str, blockHash:str=None):
+    def balance(self, address: str, blockHash: str = None):
         url = "/".join([self._host, "executionlayer/balance"])
         resp = self._get(url, params={"address": address, "block": blockHash})
         return resp
 
-    def transfer(self, token_contract_address:str, sender_address: str, recipient_address:str, 
+    def transfer(self, token_contract_address: str, sender_address: str, recipient_address: str,
                  amount: int, gas_price: int, fee: int,
                  memo: str = "") -> None:
         self._gas_price = gas_price
@@ -122,19 +116,19 @@ class Transaction:
 
         url = "/".join([self._host, "executionlayer/transfer"])
         params = {
-	        "chain_id": self._chain_id,
-	        "memo": memo,
-	        "gas_price": str(gas_price),
+            "chain_id": self._chain_id,
+            "memo": memo,
+            "gas_price": str(gas_price),
             "fee": str(fee),
             "token_contract_address": token_contract_address,
-	        "sender_address": sender_address,
-            "recipient_address": recipient_address,
-	        "amount": str(amount)
+            "sender_pubkey_or_name": sender_address,
+            "recipient_pubkey_or_name": recipient_address,
+            "amount": str(amount)
         }
         resp = self._post_json(url, json_param=params)
         if resp.status_code != 200:
             raise BadRequestException
-        
+
         value = resp.json().get("value")
         msgs = value.get("msg")
         if len(msgs) == 0:
@@ -142,24 +136,26 @@ class Transaction:
 
         self._msgs.extend(msgs)
 
-    def bond(self, address: str, amount: int, gas_price: int, fee:int, memo: str=""):
+    def bond(self, token_contract_address: str, address: str, pubkey_or_name: str,
+             amount: int, gas_price: int, fee: int, memo: str = ""):
         self._gas_price = gas_price
         self._memo = memo
         self._get_account_info(address)
 
         url = "/".join([self._host, "executionlayer/bond"])
         params = {
-	        "chain_id": self._chain_id,
-	        "memo": memo,
-	        "gas_price": str(gas_price),
+            "chain_id": self._chain_id,
+            "memo": memo,
+            "token_contract_address": token_contract_address,
+            "gas_price": str(gas_price),
             "fee": str(fee),
-	        "address": address,
-	        "amount": str(amount)
+            "pubkey_or_name": pubkey_or_name,
+            "amount": str(amount)
         }
         resp = self._post_json(url, json_param=params)
         if resp.status_code != 200:
             raise BadRequestException
-        
+
         value = resp.json().get("value")
         msgs = value.get("msg")
         if len(msgs) == 0:
@@ -167,24 +163,26 @@ class Transaction:
 
         self._msgs.extend(msgs)
 
-    def unbond(self, address: str, amount: int, gas_price: int, fee: int, memo: str=""):
+    def unbond(self, token_contract_address: str, address: str, pubkey_or_name: str,
+               amount: int, gas_price: int, fee: int, memo: str = ""):
         self._gas_price = gas_price
         self._memo = memo
         self._get_account_info(address)
 
         url = "/".join([self._host, "executionlayer/unbond"])
         params = {
-	        "chain_id": self._chain_id,
-	        "memo": memo,
-	        "gas_price": str(gas_price),
+            "chain_id": self._chain_id,
+            "memo": memo,
+            "token_contract_address": token_contract_address,
+            "gas_price": str(gas_price),
             "fee": str(fee),
-	        "address": address,
-	        "amount": str(amount)
+            "pubkey_or_name": pubkey_or_name,
+            "amount": str(amount)
         }
         resp = self._post_json(url, json_param=params)
         if resp.status_code != 200:
             raise BadRequestException
-        
+
         value = resp.json().get("value")
         msgs = value.get("msg")
         if len(msgs) == 0:

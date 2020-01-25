@@ -7,7 +7,7 @@ else:
 
 
 # Valid transaction broadcast modes for the `POST /txs` endpoint of the
-# Cosmos REST API.
+# Hdac REST API.
 SyncMode = Literal["sync", "async", "block"]
 
 
