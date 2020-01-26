@@ -190,6 +190,122 @@ class Transaction:
 
         self._msgs.extend(msgs)
 
+    def set_nick_bech32(self, address: str, name: str, pubkey_bech32: str,
+                        gas_price: int, memo: str = ""):
+        """
+        Wiil be changed and merged into "set_nick()"
+        """
+        self._gas_price = gas_price
+        self._memo = memo
+        self._get_account_info(address)
+
+        url = "/".join([self._host, "readablename/newname/bech32"])
+        params = {
+            "chain_id": self._chain_id,
+            "gas": str(gas_price),
+            "memo": memo,
+            "name": name,
+            "pubkey_fridaypub": pubkey_bech32
+        }
+        resp = self._post_json(url, json_param=params)
+        if resp.status_code != 200:
+            raise BadRequestException
+
+        value = resp.json().get("value")
+        msgs = value.get("msg")
+        if len(msgs) == 0:
+            raise EmptyMsgException
+
+        self._msgs.extend(msgs)
+
+    def set_nick_secp256k1(self, address: str, name: str, pubkey: str,
+                           gas_price: int, memo: str = ""):
+        """
+        Wiil be changed and merged into "set_nick()"
+        """
+        self._gas_price = gas_price
+        self._memo = memo
+        self._get_account_info(address)
+
+        url = "/".join([self._host, "readablename/newname/secp256k1"])
+        params = {
+            "chain_id": self._chain_id,
+            "gas": str(gas_price),
+            "memo": memo,
+            "name": name,
+            "pubkey": pubkey
+        }
+        resp = self._post_json(url, json_param=params)
+        if resp.status_code != 200:
+            raise BadRequestException
+
+        value = resp.json().get("value")
+        msgs = value.get("msg")
+        if len(msgs) == 0:
+            raise EmptyMsgException
+
+        self._msgs.extend(msgs)
+
+    def changekey_bech32(self, address: str, name: str,
+                         oldpubkey_fridaypub: str, newpubkey_fridaypub: str,
+                         gas_price: int, memo: str = ""):
+        """
+        Wiil be changed and merged into "changekey()"
+        """
+        self._gas_price = gas_price
+        self._memo = memo
+        self._get_account_info(address)
+
+        url = "/".join([self._host, "readablename/change/bech32"])
+        params = {
+            "chain_id": self._chain_id,
+            "gas": str(gas_price),
+            "memo": memo,
+            "name": name,
+            "old_pubkey_fridaypub": oldpubkey_fridaypub,
+            "new_pubkey_fridaypub": newpubkey_fridaypub
+        }
+        resp = self._post_json(url, json_param=params)
+        if resp.status_code != 200:
+            raise BadRequestException
+
+        value = resp.json().get("value")
+        msgs = value.get("msg")
+        if len(msgs) == 0:
+            raise EmptyMsgException
+
+        self._msgs.extend(msgs)
+
+    def changekey_secp256k1(self, address: str, name: str,
+                            oldpubkey: str, newpubkey: str,
+                            gas_price: int, memo: str = ""):
+        """
+        Wiil be changed and merged into "changekey()"
+        """
+        self._gas_price = gas_price
+        self._memo = memo
+        self._get_account_info(address)
+
+        url = "/".join([self._host, "readablename/change/secp256k1"])
+        params = {
+            "chain_id": self._chain_id,
+            "gas": str(gas_price),
+            "memo": memo,
+            "name": name,
+            "old_pubkey": oldpubkey,
+            "new_pubkey": newpubkey
+        }
+        resp = self._post_json(url, json_param=params)
+        if resp.status_code != 200:
+            raise BadRequestException
+
+        value = resp.json().get("value")
+        msgs = value.get("msg")
+        if len(msgs) == 0:
+            raise EmptyMsgException
+
+        self._msgs.extend(msgs)
+
     def send_tx(self):
         tx = self._get_pushable_tx()
         url = "/".join([self._host, "txs"])
