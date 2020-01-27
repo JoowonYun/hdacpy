@@ -6,9 +6,15 @@ Tools for Hdac wallet management and offline transaction signing
 Forked from hukkinj1/cosmospy
 
 <!--- Don't edit the version line below manually. Let bump2version do it for you. -->
-> Version 0.3.1
+> Version 0.3.2
 
 > Tools for Hdac wallet management and offline transaction signing
+
+# Version matching
+
+| [Hdac](https://github.com/hdac-io/friday) | `hdacpy` |
+|------|----------|
+| <= 0.4.0 | 0.3.2 |
 
 ## Installing
 Installing from PyPI repository (https://pypi.org/project/hdacpy):

@@ -33,7 +33,7 @@ def test_sign():
             }
         ],
     }
-    dummy_num = 1337
+
     tx = Transaction(
         host="http://localhost:1317",
         privkey=private_key,
@@ -48,6 +48,7 @@ def test_sign():
     actual_signature = tx._sign()
     assert actual_signature == expected_signature
 
+
 @pytest.mark.skip(reason="only works if RESTful server runs in local")
 def test_transfer():
     _tx_total_cost = 200000000
@@ -60,8 +61,7 @@ def test_transfer():
         chain_id="friday-devnet",
     )
     tx.transfer(
-        token_owner_address="friday15evpva2u57vv6l5czehyk69s0wnq9hrkqulwfz",
-        sender_address="friday1lgharzgds89lpshr7q8kcmd2esnxkfpwmfgk32",
+        token_contract_address="friday15evpva2u57vv6l5czehyk69s0wnq9hrkqulwfz",
         recipient_address="friday1z47ev5u5ujmc7kwv49tut7raesg55tjyk2wvhd",
         amount=amount, gas_price=20000000, fee=fee
     )
@@ -72,6 +72,7 @@ def test_transfer():
     resp['tx']['msg'][0]['value'].pop('payment_code')
 
     assert res.status_code == 200
+
 
 @pytest.mark.skip(reason="only works if RESTful server runs in local")
 def test_bond():
@@ -85,7 +86,7 @@ def test_bond():
         chain_id="friday-devnet",
     )
     tx.bond(
-        address="friday1lgharzgds89lpshr7q8kcmd2esnxkfpwmfgk32",
+        token_contract_address="friday1lgharzgds89lpshr7q8kcmd2esnxkfpwmfgk32",
         amount=amount, gas_price=2000000, fee=10000
     )
 
@@ -95,6 +96,7 @@ def test_bond():
 
     res = tx.send_tx()
     assert res.status_code == 200
+
 
 @pytest.mark.skip(reason="only works if RESTful server runs in local")
 def test_unbond():
@@ -108,7 +110,7 @@ def test_unbond():
         chain_id="friday-devtest",
     )
     tx.unbond(
-        address="friday1lgharzgds89lpshr7q8kcmd2esnxkfpwmfgk32",
+        token_contract_address="friday1lgharzgds89lpshr7q8kcmd2esnxkfpwmfgk32",
         amount=amount, gas_price=2000000, fee=10000
     )
 
@@ -118,3 +120,32 @@ def test_unbond():
 
     res = tx.send_tx()
     assert res.status_code == 200
+
+
+@pytest.mark.skip(reason="only works if RESTful server runs in local")
+def test_setnick():
+    tx = Transaction(
+        host="http://localhost:1317",
+        privkey="26d167d549a4b2b66f766b0d3f2bdbe1cd92708818c338ff453abde316a2bd59",
+        chain_id="friday-devtest",
+    )
+    tx.set_nick(name="bryan", gas_price=2000000)
+    res = tx.send_tx()
+    resp = res.json()
+    assert res.status_code == 200 and resp['code'] == 0
+
+
+@pytest.mark.skip(reason="only works if RESTful server runs in local")
+def test_changekey():
+    tx = Transaction(
+        host="http://localhost:1317",
+        privkey="26d167d549a4b2b66f766b0d3f2bdbe1cd92708818c338ff453abde316a2bd59",
+        chain_id="testnet",
+    )
+    tx.changekey(
+        name="bryan",
+        newpubkey="0356fab26b795d07fee213444c553f544713911253ca744bd38d9e6e2d648bc8c4",
+        gas_price=2000000)
+    res = tx.send_tx()
+    resp = res.json()
+    assert res.status_code == 200 and resp['code'] == 0
