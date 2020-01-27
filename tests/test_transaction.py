@@ -135,7 +135,7 @@ def test_setnick():
     assert res.status_code == 200 and resp['code'] == 0
 
 
-#@pytest.mark.skip(reason="only works if RESTful server runs in local")
+@pytest.mark.skip(reason="only works if RESTful server runs in local")
 def test_changekey():
     tx = Transaction(
         host="http://localhost:1317",
