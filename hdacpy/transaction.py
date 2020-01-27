@@ -6,7 +6,7 @@ from typing import Any, Dict, List
 import ecdsa
 
 from hdacpy.type import SyncMode
-from hdacpy.wallet import privkey_to_pubkey
+from hdacpy.wallet import privkey_to_pubkey, pubkey_to_address, privkey_to_address
 from hdacpy.exceptions import BadRequestException, EmptyMsgException
 
 import requests
@@ -107,9 +107,12 @@ class Transaction:
         resp = self._get(url, params={"address": address, "block": blockHash})
         return resp
 
-    def transfer(self, token_contract_address: str, sender_address: str, recipient_address: str,
+    def transfer(self, token_contract_address: str, recipient_address: str,
                  amount: int, gas_price: int, fee: int,
                  memo: str = "") -> None:
+        sender_pubkey = privkey_to_pubkey(self._privkey)
+        sender_address = pubkey_to_address(sender_pubkey)
+
         self._gas_price = gas_price
         self._memo = memo
         self._get_account_info(sender_address)
@@ -121,7 +124,7 @@ class Transaction:
             "gas_price": str(gas_price),
             "fee": str(fee),
             "token_contract_address": token_contract_address,
-            "sender_pubkey_or_name": sender_address,
+            "sender_pubkey_or_name": sender_pubkey,
             "recipient_pubkey_or_name": recipient_address,
             "amount": str(amount)
         }
@@ -136,8 +139,11 @@ class Transaction:
 
         self._msgs.extend(msgs)
 
-    def bond(self, token_contract_address: str, address: str, pubkey_or_name: str,
+    def bond(self, token_contract_address: str,
              amount: int, gas_price: int, fee: int, memo: str = ""):
+        pubkey = privkey_to_pubkey(self._privkey)
+        address = pubkey_to_address(pubkey)
+
         self._gas_price = gas_price
         self._memo = memo
         self._get_account_info(address)
@@ -149,7 +155,7 @@ class Transaction:
             "token_contract_address": token_contract_address,
             "gas_price": str(gas_price),
             "fee": str(fee),
-            "pubkey_or_name": pubkey_or_name,
+            "pubkey_or_name": pubkey,
             "amount": str(amount)
         }
         resp = self._post_json(url, json_param=params)
@@ -163,8 +169,11 @@ class Transaction:
 
         self._msgs.extend(msgs)
 
-    def unbond(self, token_contract_address: str, address: str, pubkey_or_name: str,
+    def unbond(self, token_contract_address: str,
                amount: int, gas_price: int, fee: int, memo: str = ""):
+        pubkey = privkey_to_pubkey(self._privkey)
+        address = pubkey_to_address(pubkey)
+
         self._gas_price = gas_price
         self._memo = memo
         self._get_account_info(address)
@@ -176,7 +185,7 @@ class Transaction:
             "token_contract_address": token_contract_address,
             "gas_price": str(gas_price),
             "fee": str(fee),
-            "pubkey_or_name": pubkey_or_name,
+            "pubkey_or_name": pubkey,
             "amount": str(amount)
         }
         resp = self._post_json(url, json_param=params)
@@ -190,39 +199,10 @@ class Transaction:
 
         self._msgs.extend(msgs)
 
-    def set_nick_bech32(self, address: str, name: str, pubkey_bech32: str,
-                        gas_price: int, memo: str = ""):
-        """
-        Wiil be changed and merged into "set_nick()"
-        """
-        self._gas_price = gas_price
-        self._memo = memo
-        self._get_account_info(address)
+    def set_nick(self, name: str, gas_price: int, memo: str = ""):
+        pubkey = privkey_to_pubkey(self._privkey)
+        address = pubkey_to_address(pubkey)
 
-        url = "/".join([self._host, "readablename/newname/bech32"])
-        params = {
-            "chain_id": self._chain_id,
-            "gas": str(gas_price),
-            "memo": memo,
-            "name": name,
-            "pubkey_fridaypub": pubkey_bech32
-        }
-        resp = self._post_json(url, json_param=params)
-        if resp.status_code != 200:
-            raise BadRequestException
-
-        value = resp.json().get("value")
-        msgs = value.get("msg")
-        if len(msgs) == 0:
-            raise EmptyMsgException
-
-        self._msgs.extend(msgs)
-
-    def set_nick_secp256k1(self, address: str, name: str, pubkey: str,
-                           gas_price: int, memo: str = ""):
-        """
-        Wiil be changed and merged into "set_nick()"
-        """
         self._gas_price = gas_price
         self._memo = memo
         self._get_account_info(address)
@@ -246,42 +226,10 @@ class Transaction:
 
         self._msgs.extend(msgs)
 
-    def changekey_bech32(self, address: str, name: str,
-                         oldpubkey_fridaypub: str, newpubkey_fridaypub: str,
-                         gas_price: int, memo: str = ""):
-        """
-        Wiil be changed and merged into "changekey()"
-        """
-        self._gas_price = gas_price
-        self._memo = memo
-        self._get_account_info(address)
+    def changekey(self, name: str, newpubkey: str, gas_price: int, memo: str = ""):
+        oldpubkey = privkey_to_pubkey(self._privkey)
+        address = pubkey_to_address(oldpubkey)
 
-        url = "/".join([self._host, "readablename/change/bech32"])
-        params = {
-            "chain_id": self._chain_id,
-            "gas": str(gas_price),
-            "memo": memo,
-            "name": name,
-            "old_pubkey_fridaypub": oldpubkey_fridaypub,
-            "new_pubkey_fridaypub": newpubkey_fridaypub
-        }
-        resp = self._post_json(url, json_param=params)
-        if resp.status_code != 200:
-            raise BadRequestException
-
-        value = resp.json().get("value")
-        msgs = value.get("msg")
-        if len(msgs) == 0:
-            raise EmptyMsgException
-
-        self._msgs.extend(msgs)
-
-    def changekey_secp256k1(self, address: str, name: str,
-                            oldpubkey: str, newpubkey: str,
-                            gas_price: int, memo: str = ""):
-        """
-        Wiil be changed and merged into "changekey()"
-        """
         self._gas_price = gas_price
         self._memo = memo
         self._get_account_info(address)
