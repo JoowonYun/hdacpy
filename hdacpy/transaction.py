@@ -42,6 +42,10 @@ class Transaction:
     def _post_json(self, url: str, json_param: dict) -> requests.Response:
         resp = requests.post(url, json=json_param)
         return resp
+    
+    def _put_json(self, url: str, json_param: dict) -> requests.Response:
+        resp = requests.put(url, json=json_param)
+        return resp
 
     def _get_account_info(self, address):
         url = "/".join([self._host, "auth/accounts", address])
@@ -242,6 +246,86 @@ class Transaction:
             "name": name,
             "old_pubkey": oldpubkey,
             "new_pubkey": newpubkey
+        }
+        resp = self._post_json(url, json_param=params)
+        if resp.status_code != 200:
+            raise BadRequestException
+
+        value = resp.json().get("value")
+        msgs = value.get("msg")
+        if len(msgs) == 0:
+            raise EmptyMsgException
+
+        self._msgs.extend(msgs)
+        
+    def create_validator(
+        self,
+        validator_address: str,
+        cons_pub_key: str,
+        moniker: str,
+        identity: str,
+        website: str,
+        details: str,
+        gas_price: int,
+        memo: str = "",
+    ):
+        pubkey = privkey_to_pubkey(self._privkey)
+        address = pubkey_to_address(pubkey)
+
+        self._gas_price = gas_price
+        self._memo = memo
+        self._get_account_info(address)
+
+        url = "/".join([self._host, "contract/validator"])
+        params = {
+            "chain_id": self._chain_id,
+            "memo": memo,
+            "gas": str(gas_price),
+            "validator_address_or_nickname": validator_address,
+            "cons_pub_key": cons_pub_key,
+            "moniker": moniker,
+            "identity": identity,
+            "website": website,
+            "details": details,
+        }
+        resp = self._put_json(url, json_param=params)
+        if resp.status_code != 200:
+            raise BadRequestException
+
+        value = resp.json().get("value")
+        msgs = value.get("msg")
+        if len(msgs) == 0:
+            raise EmptyMsgException
+
+        self._msgs.extend(msgs)
+
+    def edit_validator(
+        self,
+        validator_address: str,
+        moniker: str,
+        identity: str,
+        website: str,
+        details: str,
+        gas_price: int,
+        memo: str = "",
+    ):
+        pubkey = privkey_to_pubkey(self._privkey)
+        address = pubkey_to_address(pubkey)
+
+        self._gas_price = gas_price
+        self._memo = memo
+        self._get_account_info(address)
+
+        url = "/".join([self._host, "contract/validator"])
+        params = {
+            "chain_id": self._chain_id,
+            "memo": memo,
+            "gas": str(gas_price),
+            "validator_address_or_nickname": validator_address,
+            "moniker": moniker,
+            "identity": identity,
+            "website": website,
+            "details": details,
         }
         resp = self._post_json(url, json_param=params)
         if resp.status_code != 200:
