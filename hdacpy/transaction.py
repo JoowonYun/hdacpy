@@ -284,10 +284,12 @@ class Transaction:
             "gas": str(gas_price),
             "validator_address_or_nickname": validator_address,
             "cons_pub_key": cons_pub_key,
-            "moniker": moniker,
-            "identity": identity,
-            "website": website,
-            "details": details,
+            "description": {
+                "moniker": moniker,
+                "identity": identity,
+                "website": website,
+                "details": details,
+            },
         }
         resp = self._post_json(url, json_param=params)
         if resp.status_code != 200:
@@ -323,10 +325,12 @@ class Transaction:
             "memo": memo,
             "gas": str(gas_price),
             "validator_address_or_nickname": validator_address,
-            "moniker": moniker,
-            "identity": identity,
-            "website": website,
-            "details": details,
+            "description": {
+                "moniker": moniker,
+                "identity": identity,
+                "website": website,
+                "details": details,
+            },
         }
         resp = self._put_json(url, json_param=params)
         if resp.status_code != 200:
